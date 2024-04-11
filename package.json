@@ -11,8 +11,5 @@
     "url": "https://github.com/rod24574575/monorepo.git"
   },
   "packageManager": "pnpm@8.15.6",
-  "devDependencies": {
-    "version-bump-prompt": "^6.1.0"
-  },
   "private": true
 }

@@ -6,11 +6,7 @@ settings:
 
 importers:
 
-  .:
-    devDependencies:
-      version-bump-prompt:
-        specifier: ^6.1.0
-        version: 6.1.0
+  .: {}
 
   packages/twitter-hide-warning:
     devDependencies:
