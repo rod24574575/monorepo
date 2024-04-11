@@ -1,0 +1,26 @@
+{
+  "name": "wikipedia-hide-site-notice",
+  "version": "1.0.0",
+  "description": "Hide the top site-notice in Wikipedia.",
+  "keywords": [
+    "userstyle",
+    "wikipedia"
+  ],
+  "homepage": "https://github.com/rod24574575/monorepo",
+  "bugs": "https://github.com/rod24574575/monorepo/issues",
+  "license": "MIT",
+  "author": "rod24574575 <rod24574575@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rod24574575/monorepo.git",
+    "directory": "packages/wikipedia-hide-site-notice"
+  },
+  "scripts": {
+    "bump": "bump package.json wikipedia-hide-site-notice.user.styl -a -c 'release: wikipedia-hide-site-notice v%s' -t 'wikipedia-hide-site-notice-v%s'",
+    "version": "pnpm install"
+  },
+  "devDependencies": {
+    "version-bump-prompt": "^6.1.0"
+  },
+  "private": true
+}

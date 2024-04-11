@@ -1,0 +1,18 @@
+/* ==UserStyle==
+@name         Wikipedia Hide Site-Notice
+@version      1.0.0
+@namespace    https://github.com/rod24574575
+@description  Hide the top site-notice in Wikipedia.
+@author       rod24574575
+@homepageURL  https://github.com/rod24574575/monorepo
+@supportURL   https://github.com/rod24574575/monorepo/issues
+@updateURL    https://github.com/rod24574575/monorepo/raw/main/packages/wikipedia-hide-site-notice/wikipedia-hide-site-notice.user.styl
+@license      MIT
+==/UserStyle== */
+
+@-moz-document domain("wikipedia.org") {
+  /* stylelint-disable-next-line selector-id-pattern -- this id originated from wikipedia */
+  #siteNotice > * {
+    display: none !important;
+  }
+}
