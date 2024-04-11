@@ -30,6 +30,12 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0
 
+  packages/wikipedia-hide-site-notice:
+    devDependencies:
+      version-bump-prompt:
+        specifier: ^6.1.0
+        version: 6.1.0
+
 packages:
 
   /@babel/code-frame@7.24.2:
