@@ -1,0 +1,18 @@
+{
+  "name": "monorepo",
+  "version": "0.0.0",
+  "description": "The monorepo for userscript and stylus",
+  "homepage": "https://github.com/rod24574575/monorepo",
+  "bugs": "https://github.com/rod24574575/monorepo/issues",
+  "license": "MIT",
+  "author": "rod24574575 <rod24574575@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rod24574575/monorepo.git"
+  },
+  "packageManager": "pnpm@8.15.6",
+  "devDependencies": {
+    "version-bump-prompt": "^6.1.0"
+  },
+  "private": true
+}
