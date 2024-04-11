@@ -7,4 +7,4 @@ Hide the annoying warning in [X (Twitter)](https://twitter.com/).
 You can get this user-style from:
 
 * [UserStyles.world](https://userstyles.world/style/15755)
-* [Github](https://github.com/rod24574575/monorepo/tree/main/packages/twitter-hide-warning)
+* [GitHub](https://github.com/rod24574575/monorepo/tree/main/packages/twitter-hide-warning)

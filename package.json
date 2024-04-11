@@ -1,7 +1,7 @@
 {
   "name": "monorepo",
   "version": "0.0.0",
-  "description": "The monorepo for userscript and stylus",
+  "description": "The monorepo for my user-scripts and user-styles",
   "homepage": "https://github.com/rod24574575/monorepo",
   "bugs": "https://github.com/rod24574575/monorepo/issues",
   "license": "MIT",
