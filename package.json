@@ -10,6 +10,18 @@
     "type": "git",
     "url": "https://github.com/rod24574575/monorepo.git"
   },
+  "scripts": {
+    "lint:css": "stylelint './**/*.styl'",
+    "lint:md": "markdownlint './**/*.md'",
+    "lint": "pnpm run lint:css && pnpm run lint:md"
+  },
   "packageManager": "pnpm@8.15.6",
+  "devDependencies": {
+    "markdownlint-cli": "^0.39.0",
+    "stylelint": "^16.3.1",
+    "stylelint-config-standard-scss": "^13.1.0",
+    "stylelint-scss": "^6.2.1",
+    "stylelint-stylus": "^1.0.0"
+  },
   "private": true
 }
