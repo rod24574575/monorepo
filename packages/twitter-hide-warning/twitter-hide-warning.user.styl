@@ -12,9 +12,10 @@
 
 @-moz-document domain("twitter.com") {
   /* sensitive content */
-  div[aria-labelledby^=id] > div:only-child,
-  li[id^=verticalGridItem-] {
+  li[id^="verticalGridItem-"],
+  div[aria-labelledby^="id"] > div:only-child {
     & > div:only-child > div:only-child > div:first-child:has(> :last-child:nth-child(2)) {
+      /* stylelint-disable no-descending-specificity -- the outside selector must not intersect */
       & > div:nth-child(1) {
         filter: unset !important;
       }
@@ -22,6 +23,7 @@
       & > div:nth-child(2) {
         display: none !important;
       }
+      /* stylelint-enable no-descending-specificity */
     }
   }
 }
