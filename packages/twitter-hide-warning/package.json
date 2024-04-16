@@ -16,8 +16,7 @@
     "directory": "packages/twitter-hide-warning"
   },
   "scripts": {
-    "bump": "bump package.json twitter-hide-warning.user.styl -a -c 'release: twitter-hide-warning v%s' -t 'twitter-hide-warning-v%s'",
-    "version": "pnpm install"
+    "bump": "bump package.json twitter-hide-warning.user.styl -a -c 'release: twitter-hide-warning v%s' -t 'twitter-hide-warning-v%s'"
   },
   "devDependencies": {
     "version-bump-prompt": "^6.1.0"

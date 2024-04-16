@@ -16,8 +16,7 @@
     "directory": "packages/wikipedia-hide-site-notice"
   },
   "scripts": {
-    "bump": "bump package.json wikipedia-hide-site-notice.user.styl -a -c 'release: wikipedia-hide-site-notice v%s' -t 'wikipedia-hide-site-notice-v%s'",
-    "version": "pnpm install"
+    "bump": "bump package.json wikipedia-hide-site-notice.user.styl -a -c 'release: wikipedia-hide-site-notice v%s' -t 'wikipedia-hide-site-notice-v%s'"
   },
   "devDependencies": {
     "version-bump-prompt": "^6.1.0"
