@@ -4,7 +4,7 @@
 // @namespace          https://github.com/rod24574575
 // @description        Some user experience enhancement and small features for Animate-Gamer.
 // @description:zh-TW  一些巴哈姆特動畫瘋的 UX 改善和小功能
-// @version            1.0.0
+// @version            1.0.1
 // @license            MIT
 // @author             rod24574575
 // @homepage           https://github.com/rod24574575/monorepo
