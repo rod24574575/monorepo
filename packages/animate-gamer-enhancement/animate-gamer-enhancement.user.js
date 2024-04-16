@@ -1,21 +1,21 @@
 // ==UserScript==
-// @name            Animate-Gamer Enhancement
-// @name:zh         巴哈姆特動畫瘋 威力加強版
-// @namespace       https://github.com/rod24574575
-// @description     Some user experience enhancement and small features for Animate-Gamer.
-// @description:zh  一些巴哈姆特動畫瘋的 UX 改善和小功能
-// @version         1.0.0
-// @license         MIT
-// @author          rod24574575
-// @homepage        https://github.com/rod24574575/monorepo
-// @homepageURL     https://github.com/rod24574575/monorepo
-// @supportURL      https://github.com/rod24574575/monorepo/issues
-// @updateURL       https://github.com/rod24574575/monorepo/raw/main/packages/animate-gamer-enhancement/animate-gamer-enhancement.user.js
-// @downloadURL     https://github.com/rod24574575/monorepo/raw/main/packages/animate-gamer-enhancement/animate-gamer-enhancement.user.js
-// @match           *://ani.gamer.com.tw/animeVideo.php*
-// @run-at          document-idle
-// @grant           GM.getValue
-// @grant           GM.setValue
+// @name               Animate-Gamer Enhancement
+// @name:zh-TW         巴哈姆特動畫瘋 威力加強版
+// @namespace          https://github.com/rod24574575
+// @description        Some user experience enhancement and small features for Animate-Gamer.
+// @description:zh-TW  一些巴哈姆特動畫瘋的 UX 改善和小功能
+// @version            1.0.0
+// @license            MIT
+// @author             rod24574575
+// @homepage           https://github.com/rod24574575/monorepo
+// @homepageURL        https://github.com/rod24574575/monorepo
+// @supportURL         https://github.com/rod24574575/monorepo/issues
+// @updateURL          https://github.com/rod24574575/monorepo/raw/main/packages/animate-gamer-enhancement/animate-gamer-enhancement.user.js
+// @downloadURL        https://github.com/rod24574575/monorepo/raw/main/packages/animate-gamer-enhancement/animate-gamer-enhancement.user.js
+// @match              *://ani.gamer.com.tw/animeVideo.php*
+// @run-at             document-idle
+// @grant              GM.getValue
+// @grant              GM.setValue
 // ==/UserScript==
 
 // @ts-check
