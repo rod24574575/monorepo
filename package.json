@@ -11,17 +11,24 @@
     "url": "https://github.com/rod24574575/monorepo.git"
   },
   "scripts": {
+    "lint:js": "eslint './**/*.{ts,js}'",
     "lint:css": "stylelint './**/*.styl'",
     "lint:md": "markdownlint './**/*.md'",
-    "lint": "pnpm run lint:css && pnpm run lint:md"
+    "lint": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:md"
   },
   "packageManager": "pnpm@8.15.6",
   "devDependencies": {
+    "@types/tampermonkey": "^4.20.4",
+    "eslint": "^9.0.0",
+    "eslint-define-config": "^2.1.0",
+    "eslint-plugin-userscripts": "^0.5.2",
+    "globals": "^15.0.0",
     "markdownlint-cli": "^0.39.0",
     "stylelint": "^16.3.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "stylelint-scss": "^6.2.1",
-    "stylelint-stylus": "^1.0.0"
+    "stylelint-stylus": "^1.0.0",
+    "typescript": "^5.4.5"
   },
   "private": true
 }
