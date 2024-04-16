@@ -17,4 +17,5 @@ Some user experience enhancement and small features for [Animate-Gamer](https://
 
 You can get this user-script from:
 
+- [GreasyFork](https://greasyfork.org/scripts/492674)
 - [GitHub](https://github.com/rod24574575/monorepo/tree/main/packages/animate-gamer-enhancement)
