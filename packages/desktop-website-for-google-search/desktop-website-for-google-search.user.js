@@ -261,7 +261,7 @@
   const cacheSet = new WeakSet();
 
   function run() {
-    for (const anchorElement of /** @type {NodeListOf<HTMLAnchorElement>} */ (document.querySelectorAll('a[href][data-ved]:has(> br):has(> h3):has(> span[jsaction])'))) {
+    for (const anchorElement of /** @type {NodeListOf<HTMLAnchorElement>} */ (document.querySelectorAll('a[href][data-ved]:has(> br):has(> h3):has(> div.notranslate)'))) {
       if (cacheSet.has(anchorElement)) {
         continue;
       }
