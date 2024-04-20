@@ -1,0 +1,24 @@
+{
+  "name": "desktop-website-for-google-search",
+  "version": "1.0.0",
+  "description": "Replace the google search result from mobile to desktop website.",
+  "keywords": [
+    "userscript"
+  ],
+  "homepage": "https://github.com/rod24574575/monorepo",
+  "bugs": "https://github.com/rod24574575/monorepo/issues",
+  "license": "MIT",
+  "author": "rod24574575 <rod24574575@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rod24574575/monorepo.git",
+    "directory": "packages/desktop-website-for-google-search"
+  },
+  "scripts": {
+    "bump": "bump package.json desktop-website-for-google-search.user.js -a -c 'release: desktop-website-for-google-search v%s' -t 'desktop-website-for-google-search-v%s'"
+  },
+  "devDependencies": {
+    "version-bump-prompt": "^6.1.0"
+  },
+  "private": true
+}
