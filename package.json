@@ -14,7 +14,8 @@
     "lint:js": "eslint './**/*.{ts,js}'",
     "lint:css": "stylelint './**/*.styl'",
     "lint:md": "markdownlint './**/*.md'",
-    "lint": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:md"
+    "lint": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:md",
+    "check:ts": "tsc"
   },
   "packageManager": "pnpm@8.15.6",
   "devDependencies": {
