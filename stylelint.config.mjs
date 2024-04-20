@@ -1,4 +1,6 @@
-export default {
+import { defineConfig } from 'stylelint-define-config';
+
+export default defineConfig({
   extends: [
     'stylelint-config-standard-scss',
     'stylelint-stylus/recommended',
@@ -6,4 +8,4 @@ export default {
   reportDescriptionlessDisables: true,
   reportInvalidScopeDisables: true,
   reportNeedlessDisables: true,
-};
+});
