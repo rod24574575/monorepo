@@ -4,6 +4,8 @@ Some user experience enhancement and small features for [Animate-Gamer](https://
 
 ## Features
 
+![ui_preview](./ui_preview.png)
+
 - Automatically agree the content-rating screen.
   - A content-rating (also known as maturity-rating) screen would appear before you watch any videos. This script would agree it as soon as it appears, so you wouldn't even notice that this screen has appeared before.
 - Automatically play the next episode.
