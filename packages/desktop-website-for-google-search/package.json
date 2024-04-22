@@ -1,6 +1,6 @@
 {
   "name": "desktop-website-for-google-search",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Replace the google search result from mobile to desktop website.",
   "keywords": [
     "userscript"

@@ -6,7 +6,7 @@
 // @description        把 google 搜尋結果的行動裝置版網站取代為桌面版網站
 // @description:en     Replace the google search result from mobile to desktop website.
 // @description:zh-TW  把 google 搜尋結果的行動裝置版網站取代為桌面版網站
-// @version            1.0.1
+// @version            1.0.2
 // @license            MIT
 // @author             rod24574575
 // @homepage           https://github.com/rod24574575/monorepo
