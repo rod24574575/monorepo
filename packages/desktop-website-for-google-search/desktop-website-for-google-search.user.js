@@ -247,7 +247,39 @@
   /** @type {Array<[urlTransformerLike: UrlTransformerLike, hostTransformerLike?: UrlTransformerLike]>} */
   const patterns = [
     [[/\.m\.wikipedia\.org/, '.wikipedia.org']],
-    [[/m\d*\.momoshop\.com\.tw\/goods\.momo\?/, 'www.momoshop.com.tw/goods/GoodsDetail.jsp?'], [/m\d*\.momoshop\.com\.tw/, 'www.momoshop.com.tw']],
+    [
+      [/m\d*\.momoshop\.com\.tw\/(main|goods|search|category)\.momo\b/, (url, matches) => {
+        const target = matches.at(1);
+
+        const before = url.slice(0, matches.index);
+        let replacement = 'www.momoshop.com.tw/';
+        let after = url.slice(matches.index + matches[0].length);
+
+        if (target) {
+          switch (target) {
+            case 'main':
+              replacement += 'main/Main.jsp';
+              break;
+            case 'goods':
+              replacement += 'goods/GoodsDetail.jsp';
+              break;
+            case 'search':
+              replacement += 'search/searchShop.jsp';
+              after = after.replace('searchKeyword=', 'keyword=');
+              break;
+            case 'category':
+              replacement += 'category/LgrpCategory.jsp';
+              after = after.replace('cn=', 'l_code=');
+              break;
+            default:
+              break;
+          }
+        }
+
+        return before + replacement + after;
+      }],
+      [/m\d*\.momoshop\.com\.tw/, 'www.momoshop.com.tw'],
+    ],
   ];
 
   /** @type {ReadonlyArray<[urlTransformer: UrlTransformer, hostTransformer: UrlTransformer]>} */
