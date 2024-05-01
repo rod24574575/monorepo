@@ -6,7 +6,7 @@
 // @description        Return back self-censoring tags in DLsite.
 // @description:en     Return back self-censoring tags in DLsite.
 // @description:zh-TW  恢復 DLsite 被自主規制的標籤
-// @version            1.0.1
+// @version            1.0.2
 // @license            MIT
 // @author             rod24574575
 // @homepage           https://github.com/rod24574575/monorepo
@@ -16,8 +16,8 @@
 // @downloadURL        https://github.com/rod24574575/monorepo/raw/main/packages/dlsite-return-tags-back/dlsite-return-tags-back.user.js
 // @match              *://www.dlsite.com/*
 // @run-at             document-idle
-// @resource           maps/zh_TW https://github.com/rod24574575/monorepo/raw/dlsite-return-tags-back-v1.0.1/packages/dlsite-return-tags-back/maps/zh_TW.json
-// @resource           maps/ja_JP https://github.com/rod24574575/monorepo/raw/dlsite-return-tags-back-v1.0.1/packages/dlsite-return-tags-back/maps/ja_JP.json
+// @resource           maps/zh_TW https://github.com/rod24574575/monorepo/raw/dlsite-return-tags-back-v1.0.2/packages/dlsite-return-tags-back/maps/zh_TW.json
+// @resource           maps/ja_JP https://github.com/rod24574575/monorepo/raw/dlsite-return-tags-back-v1.0.2/packages/dlsite-return-tags-back/maps/ja_JP.json
 // @grant              GM.getResourceUrl
 // ==/UserScript==
 
