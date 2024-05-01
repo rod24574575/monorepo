@@ -11,6 +11,9 @@ export default defineFlatConfig([
     },
     languageOptions: {
       ecmaVersion: 2022,
+      globals: {
+        ...globals['shared-node-browser'],
+      },
     },
   },
   {
@@ -21,8 +24,8 @@ export default defineFlatConfig([
     },
     languageOptions: {
       globals: {
-        ...globals.browser,
-        ...globals.greasemonkey,
+        ...globals['browser'],
+        ...globals['greasemonkey'],
       },
     },
   },
