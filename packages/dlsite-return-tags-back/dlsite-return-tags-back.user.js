@@ -156,6 +156,7 @@
   }
 
   /**
+   * TODO: handle locales other than East-Asian locales
    * @param {Element} el
    */
   function processElementWithWrappedTag(el) {
