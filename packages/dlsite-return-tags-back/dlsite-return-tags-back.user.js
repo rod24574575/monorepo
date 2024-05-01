@@ -16,8 +16,8 @@
 // @downloadURL        https://github.com/rod24574575/monorepo/raw/main/packages/dlsite-return-tags-back/dlsite-return-tags-back.user.js
 // @match              *://www.dlsite.com/*
 // @run-at             document-idle
-// @resource           maps/zh_TW https://github.com/rod24574575/monorepo/raw/main/packages/dlsite-return-tags-back/maps/zh_TW.json
-// @resource           maps/js_JP https://github.com/rod24574575/monorepo/raw/main/packages/dlsite-return-tags-back/maps/js_JP.json
+// @resource           maps/zh_TW https://github.com/rod24574575/monorepo/raw/dlsite-return-tags-back-v1.0.0/packages/dlsite-return-tags-back/maps/zh_TW.json
+// @resource           maps/ja_JP https://github.com/rod24574575/monorepo/raw/dlsite-return-tags-back-v1.0.0/packages/dlsite-return-tags-back/maps/ja_JP.json
 // @grant              GM.getResourceUrl
 // ==/UserScript==
 
