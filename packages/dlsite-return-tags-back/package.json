@@ -1,0 +1,25 @@
+{
+  "name": "dlsite-return-tags-back",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "userscript",
+    "dlsite"
+  ],
+  "homepage": "https://github.com/rod24574575/monorepo",
+  "bugs": "https://github.com/rod24574575/monorepo/issues",
+  "license": "MIT",
+  "author": "rod24574575 <rod24574575@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rod24574575/monorepo.git",
+    "directory": "packages/dlsite-return-tags-back"
+  },
+  "scripts": {
+    "bump": "bump package.json dlsite-return-tags-back.user.js -a -c 'release: dlsite-return-tags-back v%s' -t 'dlsite-return-tags-back-v%s'"
+  },
+  "devDependencies": {
+    "version-bump-prompt": "^6.1.0"
+  },
+  "private": true
+}

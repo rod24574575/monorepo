@@ -63,6 +63,12 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0
 
+  packages/dlsite-return-tags-back:
+    devDependencies:
+      version-bump-prompt:
+        specifier: ^6.1.0
+        version: 6.1.0
+
   packages/twitter-hide-warning:
     devDependencies:
       version-bump-prompt:
