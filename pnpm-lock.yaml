@@ -45,6 +45,12 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
+  packages/animate-gamer-anti-anti-adblock:
+    devDependencies:
+      version-bump-prompt:
+        specifier: ^6.1.0
+        version: 6.1.0
+
   packages/animate-gamer-enhancement:
     devDependencies:
       version-bump-prompt:

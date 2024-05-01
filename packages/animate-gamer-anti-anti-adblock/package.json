@@ -1,0 +1,25 @@
+{
+  "name": "animate-gamer-anti-anti-adblock",
+  "version": "1.0.0",
+  "description": "Suppress the anti-AdBlock alert dialog in Animate-Gamer for the payed.",
+  "keywords": [
+    "userscript",
+    "animate-gamer"
+  ],
+  "homepage": "https://github.com/rod24574575/monorepo",
+  "bugs": "https://github.com/rod24574575/monorepo/issues",
+  "license": "MIT",
+  "author": "rod24574575 <rod24574575@hotmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rod24574575/monorepo.git",
+    "directory": "packages/animate-gamer-anti-anti-adblock"
+  },
+  "scripts": {
+    "bump": "bump package.json animate-gamer-anti-anti-adblock.user.js -a -c 'release: animate-gamer-anti-anti-adblock v%s' -t 'animate-gamer-anti-anti-adblock-v%s'"
+  },
+  "devDependencies": {
+    "version-bump-prompt": "^6.1.0"
+  },
+  "private": true
+}
