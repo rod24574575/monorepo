@@ -1,5 +1,6 @@
 // @ts-check
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 /**
  * @param {Record<string, string>} json
@@ -14,11 +15,11 @@ function dumpDiff(json) {
 }
 
 async function main() {
-  const dirName = './maps/';
+  const dirName = path.resolve(import.meta.dirname, '../maps/');
 
   const fileNames = (await fs.readdir(dirName)).sort();
   const results = await Promise.allSettled(fileNames.map(async (name) => {
-    const file = await fs.readFile(dirName + name, {
+    const file = await fs.readFile(path.resolve(dirName, name), {
       encoding: 'utf8',
       flag: 'r',
     });

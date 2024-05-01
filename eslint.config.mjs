@@ -29,4 +29,12 @@ export default defineFlatConfig([
       },
     },
   },
+  {
+    files: ['packages/*/tools/**/*'],
+    languageOptions: {
+      globals: {
+        ...globals['node'],
+      },
+    },
+  },
 ]);
