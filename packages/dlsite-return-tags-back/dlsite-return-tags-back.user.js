@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name               DLsite還我標籤
+// @name               DLsite Return Tags Back
 // @name:en            DLsite Return Tags Back
 // @name:zh-TW         DLsite還我標籤
 // @namespace          https://github.com/rod24574575
-// @description        恢復 DLsite 被自主規制的標籤
+// @description        Return back self-censoring tags in DLsite.
 // @description:en     Return back self-censoring tags in DLsite.
 // @description:zh-TW  恢復 DLsite 被自主規制的標籤
 // @version            1.0.1
