@@ -17,6 +17,7 @@
   },
   "scripts": {
     "bump": "bump package.json dlsite-return-tags-back.user.js -a -c 'release: dlsite-return-tags-back v%s' -t 'dlsite-return-tags-back-v%s'",
+    "test": "node tools/testIntegrity.mjs",
     "dump:diff": "node tools/dumpDiff.mjs"
   },
   "devDependencies": {

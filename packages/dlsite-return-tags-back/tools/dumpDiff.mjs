@@ -1,38 +1,25 @@
 // @ts-check
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { listLocales, readGenreReplacementJson } from './utils.mjs';
 
 /**
- * @param {Record<string, string>} json
+ * @param {Record<string, string>} genreMap
  */
-function dumpDiff(json) {
-  for (const [key, value] of Object.entries(json)) {
+function dumpDiff(genreMap) {
+  for (const [key, value] of Object.entries(genreMap)) {
     if (key !== value) {
       console.log(`"${key}" => "${value}"`);
     }
   }
-  console.log('');
 }
 
 async function main() {
-  const dirName = path.resolve(import.meta.dirname, '../maps/');
-
-  const fileNames = (await fs.readdir(dirName)).sort();
-  const results = await Promise.allSettled(fileNames.map(async (name) => {
-    const file = await fs.readFile(path.resolve(dirName, name), {
-      encoding: 'utf8',
-      flag: 'r',
-    });
-
-    const json = JSON.parse(file);
-    if (typeof json !== 'object') {
-      throw new Error(`Invalid JSON object file: ${name}`);
-    }
-    return /** @type {Record<string, string>} */ (json);
+  const locales = await listLocales();
+  const results = await Promise.allSettled(locales.map(async (locale) => {
+    return readGenreReplacementJson(locale);
   }));
 
-  for (let i = 0; i < fileNames.length; ++i) {
-    console.log(`${fileNames[i]}:`);
+  for (let i = 0; i < locales.length; ++i) {
+    console.log(`${locales[i]}:`);
 
     const result = results[i];
     if (result.status === 'fulfilled') {
@@ -40,6 +27,7 @@ async function main() {
     } else {
       console.error(result.reason);
     }
+    console.log('');
   }
 }
 
