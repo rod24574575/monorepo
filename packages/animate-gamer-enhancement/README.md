@@ -14,6 +14,8 @@ Some user experience enhancement and small features for [Animate-Gamer](https://
 - Add some useful shortcuts.
   - `PageUp` for playing previous episode
   - `PageDown` for playing next episode
+- Automation rules for timeline.
+  - Allow you to set the automation rules at any time point. These rules would be triggered when the video reaches the time point.
 
 ## Install
 
