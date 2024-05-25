@@ -1,0 +1,121 @@
+#ani-tab-content-enhancement {
+  .ani-input {
+    width: 100%;
+    background-color: var(--input-bg);
+  }
+}
+
+#enh-ani-timeline-automation-rule {
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type="number"] {
+    appearance: textfield;
+  }
+}
+
+.enh-ani-time-colon {
+  margin-left: -4px;
+  margin-right: 4px;
+  font-size: 16px;
+  line-height: 30px;
+}
+
+.enh-ani-timeline-header {
+  display: flex;
+  margin-bottom: 8px;
+
+  .enh-ani-timeline-time {
+    flex: 0 0 auto;
+    display: flex;
+
+    /* stylelint-disable-next-line no-descending-specificity -- use important */
+    .ani-input {
+      width: 30px !important;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+  }
+
+  .enh-ani-timeline-cmd {
+    input {
+      cursor: pointer;
+    }
+
+    .filter-items {
+      min-width: 100%;
+    }
+  }
+
+  .bluebtn {
+    flex: 0 0 auto;
+    position: relative;
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+}
+
+.enh-ani-timeline-body {
+  width: 100%;
+  padding: 8px;
+  min-height: 200px;
+  border: 1px solid var(--border-divid-line);
+  background: var(--card-history-bg);
+  border-radius: 4px;
+  box-sizing: border-box;
+
+  .sub-list-li:first-child {
+    display: none;
+  }
+
+  .sub-list-li:not(:first-child) {
+    display: flex;
+    height: 32px !important;
+    padding: 4px !important;
+    font-size: 1rem;
+
+    > * {
+      padding-top: 0 !important;
+      line-height: 24px !important;
+    }
+
+    > b {
+      width: 40px;
+    }
+
+    /* stylelint-disable-next-line selector-class-pattern -- from original site */
+    > .sub_content {
+      flex: 1 1 auto;
+      padding-left: 8px !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+    }
+
+    > a {
+      display: block;
+      padding: 4px;
+      color: rgb(var(--anime-white-rgb) 1);
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--input-bg-hover);
+      }
+    }
+
+    i {
+      position: relative !important;
+      top: 0 !important;
+      margin-right: 0 !important;
+      vertical-align: middle !important;
+      color: var(--primary-text-color) !important;
+    }
+  }
+}

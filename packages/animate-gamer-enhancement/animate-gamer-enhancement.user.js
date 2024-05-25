@@ -16,8 +16,10 @@
 // @downloadURL        https://github.com/rod24574575/monorepo/raw/main/packages/animate-gamer-enhancement/animate-gamer-enhancement.user.js
 // @match              *://ani.gamer.com.tw/animeVideo.php*
 // @run-at             document-idle
+// @resource           css https://github.com/rod24574575/monorepo/raw/animate-gamer-enhancement-v1.0.3/packages/animate-gamer-enhancement/animate-gamer-enhancement.css
 // @grant              GM.getValue
 // @grant              GM.setValue
+// @grant              GM.getResourceUrl
 // ==/UserScript==
 
 // @ts-check
@@ -37,6 +39,14 @@
     auto_play_next_episode_delay: '自動播放延遲時間',
     auto_play_countdown: '倒數{0}秒繼續播放',
     second: '秒',
+    timeline_automation_rule: '時間軸自動化規則',
+    add: '新增',
+    advance_5s: '快轉5秒',
+    advance_60s: '快轉60秒',
+    rewind_5s: '倒轉5秒',
+    rewind_60s: '倒轉60秒',
+    switch_next_episode: '切換到下一集',
+    switch_previous_episode: '切換到上一集',
   };
 
   /**
@@ -63,19 +73,35 @@
    */
 
   /**
-   * @typedef {'previous_episode' | 'next_episode'} ShortcutAction
+   * @typedef {| never
+   *   | 'advance_5s'
+   *   | 'advance_60s'
+   *   | 'rewind_5s'
+   *   | 'rewind_60s'
+   *   | 'switch_next_episode'
+   *   | 'switch_previous_episode'
+   * } Command
    */
 
   /**
-   * @typedef {[name: string, action: ShortcutAction]} CustomShortcut
+   * @typedef ShortcutAction
+   * @property {string} name
+   * @property {Command} cmd
    */
 
   /**
-   * @typedef {object} Settings
+   * @typedef TimelineAction
+   * @property {number} time
+   * @property {Command} cmd
+   */
+
+  /**
+   * @typedef Settings
    * @property {boolean} autoAgreeContentRating
    * @property {boolean} autoPlayNextEpisode
    * @property {number} autoPlayNextEpisodeDelay
-   * @property {CustomShortcut[]} customShortcuts
+   * @property {ShortcutAction[]} shortcutActions
+   * @property {TimelineAction[]} timelineActions
    */
 
   /**
@@ -87,10 +113,17 @@
       autoAgreeContentRating: false,
       autoPlayNextEpisode: false,
       autoPlayNextEpisodeDelay: 5,
-      customShortcuts: [
-        ['PageUp', 'previous_episode'],
-        ['PageDown', 'next_episode'],
+      shortcutActions: [
+        {
+          name: 'PageUp',
+          cmd: 'switch_previous_episode',
+        },
+        {
+          name: 'PageDown',
+          cmd: 'switch_next_episode',
+        },
       ],
+      timelineActions: [],
     };
 
     const entries = await Promise.all(
@@ -124,6 +157,77 @@
   /**
    * @typedef {HTMLElement} VjsPlayerElement
    */
+
+  /**
+   * @param {VjsPlayerElement} vjsPlayer
+   */
+  function useCommand(vjsPlayer) {
+    const videoEl = vjsPlayer.querySelector('video');
+
+    /**
+     * @param {number} second
+     */
+    function advance(second) {
+      if (videoEl) {
+        videoEl.currentTime += second;
+      }
+    }
+
+    /**
+     * @param {number} second
+     */
+    function rewind(second) {
+      if (videoEl) {
+        videoEl.currentTime -= second;
+      }
+    }
+
+    function switchPreviousEpisode() {
+      /** @type {HTMLButtonElement | null} */
+      const button = vjsPlayer.querySelector('button.vjs-pre-button');
+      button?.click();
+    }
+
+    function switchNextEpisode() {
+      /** @type {HTMLButtonElement | null} */
+      const button = vjsPlayer.querySelector('button.vjs-next-button');
+      button?.click();
+    }
+
+    /**
+     * @param {Command} cmd
+     * @returns {boolean}
+     */
+    function execCommand(cmd) {
+      switch (cmd) {
+        case 'advance_5s':
+          advance(5);
+          break;
+        case 'advance_60s':
+          advance(60);
+          break;
+        case 'rewind_5s':
+          rewind(5);
+          break;
+        case 'rewind_60s':
+          rewind(60);
+          break;
+        case 'switch_next_episode':
+          switchNextEpisode();
+          break;
+        case 'switch_previous_episode':
+          switchPreviousEpisode();
+          break;
+        default:
+          return false;
+      }
+      return true;
+    }
+
+    return {
+      execCommand,
+    };
+  }
 
   /**
    * @param {VjsPlayerElement} vjsPlayer
@@ -375,8 +479,9 @@
    * @param {VjsPlayerElement} vjsPlayer
    */
   function useCustomShortcuts(vjsPlayer) {
-    /** @type {Map<string, ShortcutAction>} */
+    /** @type {Map<string, Command>} */
     const shortcutMap = new Map();
+    const commandStore = useCommand(vjsPlayer);
 
     /**
      * @param {KeyboardEvent} e
@@ -418,48 +523,25 @@
     /**
      * @param {KeyboardEvent} e
      */
-    function switchPreviousVideo(e) {
-      /** @type {HTMLButtonElement | null} */
-      const button = vjsPlayer.querySelector('button.vjs-pre-button');
-      button?.click();
-    }
-
-    /**
-     * @param {KeyboardEvent} e
-     */
-    function switchNextVideo(e) {
-      /** @type {HTMLButtonElement | null} */
-      const button = vjsPlayer.querySelector('button.vjs-next-button');
-      button?.click();
-    }
-
-    /**
-     * @param {KeyboardEvent} e
-     */
     function onKeyDown(e) {
-      const action = shortcutMap.get(getKeyFullValue(e));
-      if (!action) {
+      const cmd = shortcutMap.get(getKeyFullValue(e));
+      if (!cmd) {
         return;
       }
 
-      switch (action) {
-        case 'previous_episode':
-          switchPreviousVideo(e);
-          break;
-        case 'next_episode':
-          switchNextVideo(e);
-          break;
+      const result = commandStore.execCommand(cmd);
+      if (result) {
+        e.preventDefault();
       }
-      e.preventDefault();
     }
 
     /**
-     * @param {readonly CustomShortcut[]} value
+     * @param {readonly ShortcutAction[]} value
      */
     function setCustomShortcuts(value) {
       shortcutMap.clear();
-      for (const [name, action] of value) {
-        shortcutMap.set(name, action);
+      for (const { name, cmd } of value) {
+        shortcutMap.set(name, cmd);
       }
     }
 
@@ -472,17 +554,116 @@
 
   /**
    * @param {VjsPlayerElement} vjsPlayer
+   */
+  function useTimelineActions(vjsPlayer) {
+    /** @type {TimelineAction[]} */
+    const timelineActions = [];
+
+    const videoEl = /** @type {HTMLVideoElement | null} */ (vjsPlayer.querySelector('video'));
+    if (videoEl) {
+      videoEl.addEventListener('seeking', onVideoTimeSet);
+      videoEl.addEventListener('emptied', onVideoTimeSet);
+      videoEl.addEventListener('timeupdate', onVideoTimeUpdate);
+    }
+
+    let currentTime = -1;
+    const commandStore = useCommand(vjsPlayer);
+
+    function onVideoTimeSet() {
+      currentTime = -1;
+    }
+
+    function onVideoTimeUpdate() {
+      const oldCurrentTime = currentTime;
+      const newCurrentTime = Math.floor(videoEl?.currentTime ?? 0);
+      currentTime = newCurrentTime;
+
+      if (oldCurrentTime < 0 || newCurrentTime <= oldCurrentTime) {
+        return;
+      }
+
+      let fromIndex = timelineActions.findIndex((action) => (oldCurrentTime < action.time));
+      if (fromIndex < 0) {
+        return;
+      }
+
+      // eslint-disable-next-line no-constant-condition
+      while (1) {
+        const { time, cmd } = timelineActions[fromIndex];
+        if (newCurrentTime < time) {
+          break;
+        }
+
+        commandStore.execCommand(cmd);
+        ++fromIndex;
+      }
+    }
+
+    /**
+     * @param {TimelineAction[]} actions
+     */
+    function setTimelineActions(actions) {
+      timelineActions.length = 0;
+      timelineActions.push(...actions);
+      timelineActions.sort((a, b) => (a.time - b.time));
+    }
+
+    /**
+     * @param {number} time
+     * @param {Command} command
+     */
+    function addTimelineAction(time, command) {
+      let insertIndex = timelineActions.findIndex((action) => (time < action.time));
+      if (insertIndex < 0) {
+        insertIndex = timelineActions.length;
+      }
+      timelineActions.splice(insertIndex, 0, { time, cmd: command });
+    }
+
+    /**
+     * @param {number} index
+     */
+    function removeTimelineAction(index) {
+      timelineActions.splice(index, 1);
+    }
+
+    return {
+      setTimelineActions,
+      addTimelineAction,
+      removeTimelineAction,
+    };
+  }
+
+  /**
+   * @param {VjsPlayerElement} vjsPlayer
    * @param {(settings: Partial<Settings>) => void} callback
    */
   function useSettingUi(vjsPlayer, callback) {
+    /**
+     * @typedef SettingComponent
+     * @property {Element} el
+     * @property {() => void} [onMounted]
+     * @property {(settings: Partial<Settings>) => void} [onSettings]
+     */
+
+    /** @type {readonly TimelineAction[]} */
+    let timelineActions = [];
+    /** @type {SettingComponent | null} */
+    let tabContentComponent = null;
+
     const subtitleFrame = vjsPlayer.closest('.player')?.querySelector('.subtitle');
 
     const tabContentId = 'ani-tab-content-enhancement';
-    const inputIds = {
-      autoAgreeContentRating: 'enhancement-auto-agree-content-rating',
-      autoPlayNextEpisode: 'enhancement-auto-play-next-episode',
-      autoPlayNextEpisodeDelay: 'enhancement-auto-play-next-episode-delay',
-    };
+
+    async function attachCss() {
+      const url = await GM.getResourceUrl('css');
+
+      const linkEl = document.createElement('link');
+      linkEl.rel = 'stylesheet';
+      linkEl.type = 'text/css';
+      linkEl.href = url;
+      document.head.appendChild(linkEl);
+    }
 
     function attachTabUi() {
       if (!subtitleFrame) {
@@ -537,73 +718,282 @@
         return;
       }
 
-      const tabContentItemEl = document.createElement('div');
-      tabContentItemEl.id = tabContentId;
-      tabContentItemEl.classList.add('ani-tab-content__item');
-
-      tabContentItemEl.appendChild(
-        createSettingElements([
+      tabContentComponent = createSettingTabElement({
+        id: tabContentId,
+        sections: [
           {
             title: getI18n('play_settings'),
             items: [
               {
                 type: 'checkbox',
-                id: inputIds.autoAgreeContentRating,
                 label: getI18n('auto_agree_content_rating'),
                 value: false,
+                onMounted: (el) => {
+                  el.addEventListener('change', (e) => {
+                    callback({ autoAgreeContentRating: el.checked });
+                  });
+                },
+                onSettings: (el, { autoAgreeContentRating }) => {
+                  if (autoAgreeContentRating !== undefined) {
+                    el.checked = autoAgreeContentRating;
+                  }
+                },
               },
               {
                 type: 'checkbox',
-                id: inputIds.autoPlayNextEpisode,
                 label: getI18n('auto_play_next_episode'),
                 labelTip: getI18n('auto_play_next_episode_tip'),
                 value: false,
+                onMounted: (el) => {
+                  el.addEventListener('change', (e) => {
+                    callback({ autoPlayNextEpisode: el.checked });
+                  });
+                },
+                onSettings: (el, { autoPlayNextEpisode }) => {
+                  if (autoPlayNextEpisode !== undefined) {
+                    el.checked = autoPlayNextEpisode;
+                  }
+                },
               },
               {
                 type: 'number',
-                id: inputIds.autoPlayNextEpisodeDelay,
                 label: getI18n('auto_play_next_episode_delay'),
                 value: 5,
                 max: 10,
                 min: 0,
                 placeholder: getI18n('second'),
+                onMounted: (el) => {
+                  el.addEventListener('change', (e) => {
+                    callback({ autoPlayNextEpisodeDelay: +el.value });
+                  });
+                },
+                onSettings: (el, { autoPlayNextEpisodeDelay }) => {
+                  if (autoPlayNextEpisodeDelay !== undefined) {
+                    el.value = String(autoPlayNextEpisodeDelay);
+                  }
+                },
               },
             ],
           },
-        ]),
-      );
-      tabContentEl.appendChild(tabContentItemEl);
+          {
+            title: getI18n('timeline_automation_rule'),
+            id: 'enh-ani-timeline-automation-rule',
+            items: [
+              {
+                type: 'html',
+                html: `
+                  <div class="ani-setting-item">
+                    <div class="enh-ani-timeline-header">
+                      <div class="enh-ani-timeline-time">
+                        <input type="number" id="enh-ani-timeline-time-hour" class="ani-input" placeholder="0" min="0" max="9">
+                        <span class="enh-ani-time-colon">:</span>
+                        <input type="number" id="enh-ani-timeline-time-minute" class="ani-input" placeholder="00" min="0" max="59">
+                        <span class="enh-ani-time-colon">:</span>
+                        <input type="number" id="enh-ani-timeline-time-second" class="ani-input" placeholder="00" min="0" max="59">
+                      </div>
+                      <div class="enh-ani-timeline-cmd btn-newanime-filter">
+                        <input type="text" id="enh-ani-timeline-cmd-input" class="ani-input" readonly>
+                        <ul class="filter-items"></ul>
+                      </div>
+                      <a href="#" role="button" class="bluebtn">${getI18n('add')}</a>
+                    </div>
+                    <div class="enh-ani-timeline-body">
+                      <ul class="sub_list"></ul>
+                    </div>
+                  </div>
+                `,
+                onMounted: (el) => {
+                  /**
+                   * @param {number} value
+                   * @param {number} min
+                   * @param {number} max
+                   * @returns {number}
+                   */
+                  function clamp(value, min, max) {
+                    return Math.max(min, Math.min(max, value));
+                  }
+
+                  const hourInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-time-hour'));
+                  const minuteInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-time-minute'));
+                  const secondInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-time-second'));
+                  const cmdInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-cmd-input'));
+
+                  const cmdEl = el.querySelector('.enh-ani-timeline-cmd');
+                  const cmdOptionsEl = el.querySelector('.filter-items');
+                  const addBtnEl = el.querySelector('.bluebtn');
+
+                  if (cmdOptionsEl) {
+                    /** @type {Command[]} */
+                    const cmdOptions = [
+                      'advance_5s',
+                      'advance_60s',
+                      'rewind_5s',
+                      'rewind_60s',
+                      'switch_next_episode',
+                      'switch_previous_episode',
+                    ];
+                    for (const cmd of cmdOptions) {
+                      const optionEl = document.createElement('li');
+                      optionEl.setAttribute('data-cmd', cmd);
+                      optionEl.textContent = getI18n(cmd);
+                      cmdOptionsEl.appendChild(optionEl);
+                    }
+                  }
+
+                  cmdEl?.addEventListener('click', function(e) {
+                    cmdOptionsEl?.classList.toggle('is-active');
+
+                    const target = e.target;
+                    if (target && target instanceof HTMLElement && cmdInputEl) {
+                      const optionEl = target.closest('li');
+                      if (optionEl) {
+                        const parent = optionEl.parentElement;
+                        if (parent) {
+                          for (const child of parent.children) {
+                            child.classList.remove('is-active');
+                          }
+                        }
+                        optionEl.classList.add('is-active');
+
+                        const cmd = /** @type {Command | undefined | null} */ (optionEl.getAttribute('data-cmd'));
+                        if (cmd) {
+                          cmdInputEl.setAttribute('data-cmd', cmd);
+                          cmdInputEl.value = getI18n(cmd);
+                        }
+                      }
+                    }
+                  });
+
+                  addBtnEl?.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const hour = hourInputEl ? clamp(Math.floor(+hourInputEl.value), 0, 9) : 0;
+                    const minute = minuteInputEl ? clamp(Math.floor(+minuteInputEl.value), 0, 59) : 0;
+                    const second = secondInputEl ? clamp(Math.floor(+secondInputEl.value), 0, 59) : 0;
+                    if (!isFinite(hour) || !isFinite(minute) || !isFinite(second)) {
+                      return;
+                    }
+
+                    const cmd = /** @type {Command | undefined | null} */ (cmdInputEl?.getAttribute('data-cmd'));
+                    if (!cmd) {
+                      return;
+                    }
+
+                    const time = hour * 3600 + minute * 60 + second;
+                    callback({
+                      timelineActions: [
+                        ...timelineActions,
+                        { time, cmd },
+                      ].sort((a, b) => (a.time - b.time)),
+                    });
+                  });
+                },
+                onSettings: (el, settings) => {
+                  if (settings.timelineActions === undefined) {
+                    return;
+                  }
+
+                  const ulEl = el.querySelector('.enh-ani-timeline-body')?.firstElementChild;
+                  if (!ulEl) {
+                    return;
+                  }
+
+                  ulEl.innerHTML = '<li class="sub-list-li">';
+                  for (const [index, { time, cmd }] of timelineActions.entries()) {
+                    const timeStr = formatString(
+                      '{0}:{1}:{2}',
+                      String(Math.floor(time / 3600)),
+                      String(Math.floor(time / 60) % 60).padStart(2, '0'),
+                      String(time % 60).padStart(2, '0'),
+                    );
+
+                    const dummyEl = document.createElement('div');
+                    dummyEl.innerHTML = `
+                      <li class="sub-list-li">
+                        <b>${timeStr}</b>
+                        <div class="sub_content"><span>${getI18n(cmd)}</span></div>
+                        <a href="#" role="button" class="ani-keyword-close">
+                          <i class="material-icons">close</i>
+                        </a>
+                      </li>
+                    `;
+
+                    const itemEl = /** @type {Element} */ (dummyEl.firstElementChild);
+                    itemEl.querySelector('.ani-keyword-close')?.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      callback({
+                        timelineActions: timelineActions.toSpliced(index, 1),
+                      });
+                    });
+
+                    ulEl.appendChild(itemEl);
+                  }
+                },
+              },
+            ],
+          },
+        ],
+      });
+
+      tabContentEl.appendChild(tabContentComponent.el);
+      tabContentComponent.onMounted?.();
     }
 
     /**
-     * @typedef {object} SettingCheckboxConfig
-     * @property {'checkbox'} type
-     * @property {string} id
-     * @property {string} [label]
-     * @property {string} [labelTip]
-     * @property {boolean} [value]
+     * @template {Element} [T=Element]
+     * @typedef SettingBaseConfig
+     * @property {(el: T) => void} [onMounted]
+     * @property {(el: T, settings: Partial<Settings>) => void} [onSettings]
      */
 
     /**
-     * @typedef {object} SettingNumberConfig
+     * @typedef _SettingCheckboxConfig
+     * @property {'checkbox'} type
+     * @property {string} [id]
+     * @property {string} [label]
+     * @property {string} [labelTip]
+     * @property {boolean} [value]
+     *
+     * @typedef {SettingBaseConfig<HTMLInputElement> & _SettingCheckboxConfig} SettingCheckboxConfig
+     */
+
+    /**
+     * @typedef _SettingNumberConfig
      * @property {'number'} type
-     * @property {string} id
+     * @property {string} [id]
      * @property {string} [label]
      * @property {string} [labelTip]
      * @property {number} [value]
      * @property {number} [max]
      * @property {number} [min]
      * @property {string} [placeholder]
+     *
+     * @typedef {SettingBaseConfig<HTMLInputElement> & _SettingNumberConfig} SettingNumberConfig
      */
 
     /**
-     * @typedef {SettingCheckboxConfig | SettingNumberConfig} SettingItemConfig
+     * @typedef _SettingHtmlConfig
+     * @property {'html'} type
+     * @property {string} html
+     *
+     * @typedef {SettingBaseConfig & _SettingHtmlConfig} SettingHtmlConfig
      */
 
     /**
-     * @typedef {object} SettingSectionConfig
+     * @typedef {SettingCheckboxConfig | SettingNumberConfig | SettingHtmlConfig} SettingItemConfig
+     */
+
+    /**
+     * @typedef SettingSectionConfig
      * @property {string} title
+     * @property {string} [id]
      * @property {SettingItemConfig[]} items
+     */
+
+    /**
+     * @typedef SettingTabConfig
+     * @property {string} [id]
+     * @property {SettingSectionConfig[]} sections
      */
 
     /**
@@ -612,7 +1002,7 @@
      */
     function createSettingItemLabel(config) {
       const fragment = document.createDocumentFragment();
-      if (config.label) {
+      if (('label' in config) && config.label) {
         const dummyEl = document.createElement('div');
         dummyEl.innerHTML = `
           <div class="ani-setting-label">
@@ -647,7 +1037,7 @@
 
     /**
      * @param {SettingItemConfig} config
-     * @returns {HTMLElement}
+     * @returns {SettingComponent}
      */
     function createSettingItemElement(config) {
       if (config.type === 'checkbox') {
@@ -670,17 +1060,31 @@
 
         const inputEl = itemEl.querySelector('input');
         if (inputEl) {
-          inputEl.id = config.id;
+          if (config.id) {
+            inputEl.id = config.id;
+          }
           inputEl.checked = config.value ?? false;
         }
 
-        return itemEl;
+        return {
+          el: itemEl,
+          onMounted() {
+            if (inputEl) {
+              config.onMounted?.(inputEl);
+            }
+          },
+          onSettings(settings) {
+            if (inputEl) {
+              config.onSettings?.(inputEl, settings);
+            }
+          },
+        };
       } else if (config.type === 'number') {
         const dummyEl = document.createElement('div');
         dummyEl.innerHTML = `
           <div class="ani-setting-item ani-flex">
             <div class="ani-setting-value ani-set-flex-right">
-              <input type="number" class="ani-input ani-input--keyword">
+              <input type="number" class="ani-input">
             </div>
           </div>
         `;
@@ -690,7 +1094,9 @@
 
         const inputEl = dummyEl.querySelector('input');
         if (inputEl) {
-          inputEl.id = config.id;
+          if (config.id) {
+            inputEl.id = config.id;
+          }
           inputEl.value = config.value !== undefined ? String(config.value) : '';
           if (config.max !== undefined) {
             inputEl.max = String(config.max);
@@ -703,7 +1109,32 @@
           }
         }
 
-        return itemEl;
+        return {
+          el: itemEl,
+          onMounted() {
+            if (inputEl) {
+              config.onMounted?.(inputEl);
+            }
+          },
+          onSettings(settings) {
+            if (inputEl) {
+              config.onSettings?.(inputEl, settings);
+            }
+          },
+        };
+      } else if (config.type === 'html') {
+        const dummyEl = document.createElement('div');
+        dummyEl.innerHTML = config.html;
+        const itemEl = dummyEl.firstElementChild ?? dummyEl;
+        return {
+          el: itemEl,
+          onMounted() {
+            config.onMounted?.(itemEl);
+          },
+          onSettings(settings) {
+            config.onSettings?.(itemEl, settings);
+          },
+        };
       } else {
         throw new Error(`Unknown setting item: ${config}`);
       }
@@ -711,99 +1142,88 @@
 
     /**
      * @param {SettingSectionConfig} config
-     * @returns {HTMLElement}
+     * @returns {SettingComponent}
      */
     function createSettingSectionElement(config) {
+      const { title, id, items } = config;
+
       const sectionEl = document.createElement('div');
       sectionEl.classList.add('ani-setting-section');
 
       const titleEl = document.createElement('h4');
       titleEl.classList.add('ani-setting-title');
-      titleEl.textContent = config.title;
+      titleEl.textContent = title;
+
+      if (id) {
+        sectionEl.id = id;
+      }
 
       sectionEl.appendChild(titleEl);
-      sectionEl.append(...config.items.map((item) => createSettingItemElement(item)));
-      return sectionEl;
+
+      const itemComponents = items.map((item) => createSettingItemElement(item));
+      for (const { el } of itemComponents) {
+        sectionEl.append(el);
+      }
+
+      return {
+        el: sectionEl,
+        onMounted() {
+          for (const { onMounted } of itemComponents) {
+            onMounted?.();
+          }
+        },
+        onSettings(settings) {
+          for (const { onSettings } of itemComponents) {
+            onSettings?.(settings);
+          }
+        },
+      };
     }
 
     /**
-     * @param {readonly SettingSectionConfig[]} configs
-     * @returns {DocumentFragment}
+     * @param {SettingTabConfig} config
+     * @returns {SettingComponent}
      */
-    function createSettingElements(configs) {
-      const fragment = document.createDocumentFragment();
-      fragment.append(...configs.map((config) => createSettingSectionElement(config)));
-      return fragment;
-    }
-
-    /**
-     * @param {string} id
-     * @returns {HTMLInputElement | null}
-     */
-    function getSettingInput(id) {
-      const inputEl = document.getElementById(id);
-      if (!inputEl || inputEl.tagName !== 'INPUT') {
-        console.warn(`invalid setting id: ${id}`);
-        return null;
+    function createSettingTabElement(config) {
+      const tabEl = document.createElement('div');
+      if (config.id) {
+        tabEl.id = config.id;
       }
-      return /** @type {HTMLInputElement} */ (inputEl);
-    }
+      tabEl.classList.add('ani-tab-content__item');
 
-    function initUiEvents() {
-      /** @type {Array<[string, (inputEl: HTMLInputElement, e: Event) => Partial<Settings>]>} */
-      const settingList = [
-        [inputIds.autoAgreeContentRating, (inputEl) => ({ autoAgreeContentRating: inputEl.checked })],
-        [inputIds.autoPlayNextEpisode, (inputEl) => ({ autoPlayNextEpisode: inputEl.checked })],
-        [inputIds.autoPlayNextEpisodeDelay, (inputEl) => ({ autoPlayNextEpisodeDelay: +inputEl.value })],
-      ];
-      for (const [id, handler] of settingList) {
-        const inputEl = getSettingInput(id);
-        if (!inputEl) {
-          continue;
-        }
-
-        inputEl.addEventListener('change', (e) => {
-          const settings = handler(inputEl, e);
-          applySettings(settings);
-          callback(settings);
-        });
+      const sectionComponents = config.sections.map((section) => createSettingSectionElement(section));
+      for (const { el } of sectionComponents) {
+        tabEl.append(el);
       }
+
+      return {
+        el: tabEl,
+        onMounted() {
+          for (const { onMounted } of sectionComponents) {
+            onMounted?.();
+          }
+        },
+        onSettings(settings) {
+          for (const { onSettings } of sectionComponents) {
+            onSettings?.(settings);
+          }
+        },
+      };
     }
 
     /**
      * @param {Partial<Settings>} settings
      */
     function applySettings(settings) {
-      /** @type {Array<[string, unknown | undefined]>} */
-      const settingList = [
-        [inputIds.autoAgreeContentRating, settings.autoAgreeContentRating],
-        [inputIds.autoPlayNextEpisode, settings.autoPlayNextEpisode],
-        [inputIds.autoPlayNextEpisodeDelay, settings.autoPlayNextEpisodeDelay],
-      ];
-      for (const [id, value] of settingList) {
-        if (value === undefined) {
-          continue;
-        }
-
-        const inputEl = getSettingInput(id);
-        if (!inputEl) {
-          continue;
-        }
-
-        const inputType = inputEl.type;
-        if (inputType === 'checkbox') {
-          inputEl.checked = !!value;
-        } else if (inputType === 'number' || inputType === 'text') {
-          inputEl.value = String(value);
-        } else {
-          console.warn(`invalid setting input type: ${inputEl.type}`);
-        }
+      if (settings.timelineActions) {
+        timelineActions = settings.timelineActions;
       }
+      tabContentComponent?.onSettings?.(settings);
     }
 
+    attachCss();
     attachTabUi();
     attachTabContentUi();
-    initUiEvents();
 
     return {
       applySettings,
@@ -861,6 +1281,7 @@
     const contentRatingStore = useContentRating(vjsPlayerElement);
     const nextEpisodeStore = useNextEpisode(vjsPlayerElement);
     const customShortcutsStore = useCustomShortcuts(vjsPlayerElement);
+    const timelineActionsStore = useTimelineActions(vjsPlayerElement);
     const settingUiStore = useSettingUi(vjsPlayerElement, (settings) => {
       saveSettings(settings);
       applySettings(settings);
@@ -879,13 +1300,16 @@
       if (settings.autoPlayNextEpisodeDelay !== undefined) {
         nextEpisodeStore.setAutoPlayNextEpisodeDelay(settings.autoPlayNextEpisodeDelay);
       }
-      if (settings.customShortcuts !== undefined) {
-        customShortcutsStore.setCustomShortcuts(settings.customShortcuts);
+      if (settings.shortcutActions !== undefined) {
+        customShortcutsStore.setCustomShortcuts(settings.shortcutActions);
       }
+      if (settings.timelineActions !== undefined) {
+        timelineActionsStore.setTimelineActions(settings.timelineActions);
+      }
+      settingUiStore.applySettings(settings);
     }
 
     applySettings(settings);
-    settingUiStore.applySettings(settings);
   }
 
   main();
