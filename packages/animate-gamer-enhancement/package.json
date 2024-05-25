@@ -1,6 +1,6 @@
 {
   "name": "animate-gamer-enhancement",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Some user experience enhancement and small features for Animate-Gamer.",
   "keywords": [
     "userscript",
@@ -16,7 +16,7 @@
     "directory": "packages/animate-gamer-enhancement"
   },
   "scripts": {
-    "bump": "bump package.json animate-gamer-enhancement.user.js -a -c 'release: animate-gamer-enhancement v%s' -t 'animate-gamer-enhancement-v%s'"
+    "bump": "bump package.json animate-gamer-enhancement.user.js README.md -a -c 'release: animate-gamer-enhancement v%s' -t 'animate-gamer-enhancement-v%s'"
   },
   "devDependencies": {
     "version-bump-prompt": "^6.1.0"
