@@ -6,7 +6,7 @@
 // @description        一些巴哈姆特動畫瘋的 UX 改善和小功能
 // @description:en     Some user experience enhancement and small features for Animate-Gamer.
 // @description:zh-TW  一些巴哈姆特動畫瘋的 UX 改善和小功能
-// @version            1.0.3
+// @version            1.1.0
 // @license            MIT
 // @author             rod24574575
 // @homepage           https://github.com/rod24574575/monorepo
@@ -16,7 +16,7 @@
 // @downloadURL        https://github.com/rod24574575/monorepo/raw/main/packages/animate-gamer-enhancement/animate-gamer-enhancement.user.js
 // @match              *://ani.gamer.com.tw/animeVideo.php*
 // @run-at             document-idle
-// @resource           css https://github.com/rod24574575/monorepo/raw/animate-gamer-enhancement-v1.0.3/packages/animate-gamer-enhancement/animate-gamer-enhancement.css
+// @resource           css https://github.com/rod24574575/monorepo/raw/animate-gamer-enhancement-v1.1.0/packages/animate-gamer-enhancement/animate-gamer-enhancement.css
 // @grant              GM.getValue
 // @grant              GM.setValue
 // @grant              GM.getResourceUrl
