@@ -177,7 +177,10 @@
   function useNextEpisode(vjsPlayer) {
     let enabled = false;
     let delayTime = 0;
+    /** @type {{ countdownTimer: number, finishTimer: number } | null} */
+    let countdownData = null;
 
+    const videoEl = /** @type {HTMLVideoElement | null} */ (vjsPlayer.querySelector('video'));
     const stopEl = /** @type {HTMLElement | null} */ (vjsPlayer.querySelector('.stop'));
     const titleEl = /** @type {HTMLElement | null | undefined} */ (stopEl?.querySelector('#countDownTitle'));
     const nextEpisodeEl = /** @type {HTMLAnchorElement | null | undefined} */ (stopEl?.querySelector('a#nextEpisode'));
@@ -185,15 +188,15 @@
     const nextEpisodeSvgEl = /** @type {SVGElement | null | undefined} */ (nextEpisodeEl?.querySelector('svg'));
     const nextEpisodeCountdownEl = /** @type {SVGElement | null | undefined} */ (nextEpisodeEl?.querySelector('#countDownCircle'));
 
-    if (!stopEl || !titleEl || !nextEpisodeEl || !stopAutoPlayEl || !nextEpisodeSvgEl || !nextEpisodeCountdownEl) {
+    if (!videoEl || !stopEl || !titleEl || !nextEpisodeEl || !stopAutoPlayEl || !nextEpisodeSvgEl || !nextEpisodeCountdownEl) {
       console.warn('Missing elements for next episode auto play.');
     }
 
     /**
      * @returns {boolean}
      */
-    function isStopElHidden() {
-      return !stopEl || stopEl.classList.contains('vjs-hidden');
+    function isStopElShown() {
+      return !!stopEl && !stopEl.classList.contains('vjs-hidden');
     }
 
     /**
@@ -245,27 +248,57 @@
     /**
      * @returns {Promise<void>}
      */
-    async function playNextEpisode() {
+    async function countdown() {
+      clearCountdown();
+
+      let countdownValue = delayTime;
+      const countdownTimer = window.setInterval(() => {
+        --countdownValue;
+        updateCountdownUi(countdownValue);
+      }, 1000);
+
+      const { promise, resolve } = Promise.withResolvers();
+      const finishTimer = window.setTimeout(resolve, delayTime * 1000);
+      countdownData = {
+        countdownTimer,
+        finishTimer,
+      };
+
+      await promise;
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    async function clearCountdown() {
+      if (!countdownData) {
+        return;
+      }
+      window.clearInterval(countdownData.countdownTimer);
+      window.clearTimeout(countdownData.finishTimer);
+      countdownData = null;
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    async function maybePlayNextEpisode() {
+      if (!isStopElShown()) {
+        return;
+      }
+
       if (delayTime) {
         setCountdownUiDisplay(true);
-
-        let countdownValue = delayTime;
-        const countdownTimer = window.setInterval(() => {
-          --countdownValue;
-          updateCountdownUi(countdownValue);
-        }, 1000);
-
-        await new Promise((resolve) => {
-          window.setTimeout(resolve, delayTime * 1000);
-        });
-
+        await countdown();
         setCountdownUiDisplay(false);
-        window.clearInterval(countdownTimer);
+
+        // Check again whether the stop element is still shown after the countdown.
+        if (!isStopElShown()) {
+          return;
+        }
       }
 
-      if (!isStopElHidden()) {
-        nextEpisodeEl?.click();
-      }
+      nextEpisodeEl?.click();
     }
 
     /** @type {MutationObserver | undefined} */
@@ -280,13 +313,12 @@
       if (enabled) {
         nextEpisodeMutationObserver = new MutationObserver((records) => {
           for (const { type, target, oldValue } of records) {
-            if (type !== 'attributes' || target !== stopEl || oldValue === null) {
+            // Only handle the class attribute change of the stop element when
+            // it becomes visible.
+            if (type !== 'attributes' || target !== stopEl || oldValue === null || !oldValue.split(' ').includes('vjs-hidden')) {
               continue;
             }
-            if (!isStopElHidden() && oldValue.split(' ').includes('vjs-hidden')) {
-              playNextEpisode();
-              return;
-            }
+            maybePlayNextEpisode();
           }
         });
         nextEpisodeMutationObserver.observe(stopEl, {
@@ -295,8 +327,14 @@
           attributeOldValue: true,
         });
 
-        if (!isStopElHidden()) {
-          playNextEpisode();
+        maybePlayNextEpisode();
+      }
+
+      if (videoEl) {
+        if (enabled) {
+          videoEl.addEventListener('emptied', clearCountdown);
+        } else {
+          videoEl.removeEventListener('emptied', clearCountdown);
         }
       }
     }
