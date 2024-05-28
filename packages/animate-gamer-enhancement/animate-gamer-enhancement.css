@@ -3,18 +3,19 @@
     width: 100%;
     background-color: var(--input-bg);
   }
-}
 
-#enh-ani-timeline-automation-rule {
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    appearance: none;
-    margin: 0;
-  }
-
-  /* Firefox */
   input[type="number"] {
+    text-align: right;
+
+    /* Firefox */
     appearance: textfield;
+
+    /* Chrome */
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
   }
 }
 
