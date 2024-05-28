@@ -22,6 +22,10 @@
 // @grant              GM.getResourceUrl
 // ==/UserScript==
 
+// TODO: 支援區間重複播放
+// TODO: 功能/快捷鍵說明
+// TODO: 提供只在此分頁有效的設定
+
 // @ts-check
 'use strict';
 
@@ -673,8 +677,10 @@
      * @property {Element} el
      * @property {() => void} [onMounted]
      * @property {(settings: Partial<Settings>) => void} [onSettings]
+     * @property {Record<string, Array<() => void>>} [shortcuts]
      */
 
+    const videoEl = vjsPlayer.querySelector('video');
     /** @type {readonly TimelineAction[]} */
     let timelineActions = [];
     /** @type {SettingComponent | null} */
@@ -745,6 +751,28 @@
       const tabContentEl = subtitleFrame.querySelector('.ani-tab-content');
       if (!tabContentEl) {
         return;
+      }
+
+      /**
+       * @param {number} time
+       * @returns {{ hour: number, minute: number, second: number }}
+       */
+      function parseTime(time) {
+        return {
+          hour: Math.floor(time / 3600),
+          minute: Math.floor(time / 60) % 60,
+          second: Math.floor(time % 60),
+        };
+      }
+
+      /**
+       * @param {number} hour
+       * @param {number} minute
+       * @param {number} second
+       * @returns {number}
+       */
+      function serializeTime(hour, minute, second) {
+        return hour * 3600 + minute * 60 + second;
       }
 
       tabContentComponent = createSettingTabElement({
@@ -908,11 +936,10 @@
                       return;
                     }
 
-                    const time = hour * 3600 + minute * 60 + second;
                     callback({
                       timelineActions: [
                         ...timelineActions,
-                        { time, cmd },
+                        { time: serializeTime(hour, minute, second), cmd },
                       ].sort((a, b) => (a.time - b.time)),
                     });
                   });
@@ -929,11 +956,12 @@
 
                   ulEl.innerHTML = '<li class="sub-list-li">';
                   for (const [index, { time, cmd }] of timelineActions.entries()) {
+                    const { hour, minute, second } = parseTime(time);
                     const timeStr = formatString(
                       '{0}:{1}:{2}',
-                      String(Math.floor(time / 3600)),
-                      String(Math.floor(time / 60) % 60).padStart(2, '0'),
-                      String(time % 60).padStart(2, '0'),
+                      String(hour),
+                      String(minute).padStart(2, '0'),
+                      String(second).padStart(2, '0'),
                     );
 
                     const dummyEl = document.createElement('div');
@@ -958,6 +986,24 @@
                     ulEl.appendChild(itemEl);
                   }
                 },
+                shortcuts: {
+                  '\\': (el) => {
+                    const hourInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-time-hour'));
+                    const minuteInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-time-minute'));
+                    const secondInputEl = /** @type {HTMLInputElement | null} */ (document.getElementById('enh-ani-timeline-time-second'));
+
+                    const { hour, minute, second } = parseTime(videoEl?.currentTime ?? 0);
+                    if (hourInputEl) {
+                      hourInputEl.value = String(hour);
+                    }
+                    if (minuteInputEl) {
+                      minuteInputEl.value = String(minute);
+                    }
+                    if (secondInputEl) {
+                      secondInputEl.value = String(second);
+                    }
+                  },
+                },
               },
             ],
           },
@@ -973,6 +1019,7 @@
      * @typedef SettingBaseConfig
      * @property {(el: T) => void} [onMounted]
      * @property {(el: T, settings: Partial<Settings>) => void} [onSettings]
+     * @property {Record<string, (el: T) => void>} [shortcuts]
      */
 
     /**
@@ -1096,17 +1143,8 @@
         }
 
         return {
+          ...createSettingComponentAttrs(config, inputEl),
           el: itemEl,
-          onMounted() {
-            if (inputEl) {
-              config.onMounted?.(inputEl);
-            }
-          },
-          onSettings(settings) {
-            if (inputEl) {
-              config.onSettings?.(inputEl, settings);
-            }
-          },
         };
       } else if (config.type === 'number') {
         const dummyEl = document.createElement('div');
@@ -1139,30 +1177,16 @@
         }
 
         return {
+          ...createSettingComponentAttrs(config, inputEl),
           el: itemEl,
-          onMounted() {
-            if (inputEl) {
-              config.onMounted?.(inputEl);
-            }
-          },
-          onSettings(settings) {
-            if (inputEl) {
-              config.onSettings?.(inputEl, settings);
-            }
-          },
         };
       } else if (config.type === 'html') {
         const dummyEl = document.createElement('div');
         dummyEl.innerHTML = config.html;
         const itemEl = dummyEl.firstElementChild ?? dummyEl;
         return {
+          ...createSettingComponentAttrs(config, itemEl),
           el: itemEl,
-          onMounted() {
-            config.onMounted?.(itemEl);
-          },
-          onSettings(settings) {
-            config.onSettings?.(itemEl, settings);
-          },
         };
       } else {
         throw new Error(`Unknown setting item: ${config}`);
@@ -1195,17 +1219,8 @@
       }
 
       return {
+        ...mergeSettingComponentAttrs(itemComponents),
         el: sectionEl,
-        onMounted() {
-          for (const { onMounted } of itemComponents) {
-            onMounted?.();
-          }
-        },
-        onSettings(settings) {
-          for (const { onSettings } of itemComponents) {
-            onSettings?.(settings);
-          }
-        },
       };
     }
 
@@ -1226,18 +1241,64 @@
       }
 
       return {
+        ...mergeSettingComponentAttrs(sectionComponents),
         el: tabEl,
+      };
+    }
+
+    /**
+     * @template {Element} T
+     * @param {SettingBaseConfig<T>} config
+     * @param {T | null} el
+     * @returns {Omit<SettingComponent, 'el'>}
+     */
+    function createSettingComponentAttrs(config, el) {
+      return {
+        onMounted: (config.onMounted && el) ? config.onMounted.bind(null, el) : undefined,
+        onSettings: (config.onSettings && el) ? config.onSettings.bind(null, el) : undefined,
+        shortcuts: (config.shortcuts && el) ?
+          Object.fromEntries(
+            Object.entries(config.shortcuts).map(([key, handler]) => {
+              return [key, [handler.bind(null, el)]];
+            }),
+          ) :
+          undefined,
+      };
+    }
+
+    /**
+     * @param {SettingComponent[]} components
+     * @returns {Omit<SettingComponent, 'el'>}
+     */
+    function mergeSettingComponentAttrs(components) {
+      return {
         onMounted() {
-          for (const { onMounted } of sectionComponents) {
+          for (const { onMounted } of components) {
             onMounted?.();
           }
         },
         onSettings(settings) {
-          for (const { onSettings } of sectionComponents) {
+          for (const { onSettings } of components) {
             onSettings?.(settings);
           }
         },
+        shortcuts: components
+          .flatMap(({ shortcuts }) => Object.entries(shortcuts ?? {}))
+          .reduce((acc, [key, handlers]) => {
+            if (!acc[key]) {
+              acc[key] = [];
+            }
+            acc[key].push(...handlers);
+            return acc;
+          }, /** @type {NonNullable<SettingComponent['shortcuts']>} */ ({})),
       };
+    }
+
+    /**
+     * @returns {Record<string, Array<() => void>>}
+     */
+    function getLocalShortcuts() {
+      return tabContentComponent?.shortcuts ?? {};
     }
 
     /**
@@ -1256,6 +1317,7 @@
 
     return {
       applySettings,
+      getLocalShortcuts,
     };
   }
 
@@ -1315,6 +1377,8 @@
       saveSettings(settings);
       applySettings(settings);
     });
+
+    shortcutsStore.addLocalShortcuts(settingUiStore.getLocalShortcuts());
 
     /**
      * @param {Partial<Settings>} settings
