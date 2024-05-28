@@ -478,16 +478,18 @@
   /**
    * @param {VjsPlayerElement} vjsPlayer
    */
-  function useCustomShortcuts(vjsPlayer) {
+  function useShortcuts(vjsPlayer) {
     /** @type {Map<string, Command>} */
-    const shortcutMap = new Map();
+    const customShortcutMap = new Map();
+    /** @type {Map<string, Array<() => void>>} */
+    const localShortcutMap = new Map();
     const commandStore = useCommand(vjsPlayer);
 
     /**
      * @param {KeyboardEvent} e
      * @returns {string}
      */
-    function getKeyValue(e) {
+    function getKeyName(e) {
       return e.key;
     }
 
@@ -516,22 +518,34 @@
      * @param {KeyboardEvent} e
      * @returns {string}
      */
-    function getKeyFullValue(e) {
-      return getKeyModifier(e) + getKeyValue(e);
+    function getKeyFullName(e) {
+      return getKeyModifier(e) + getKeyName(e);
     }
 
     /**
      * @param {KeyboardEvent} e
      */
     function onKeyDown(e) {
-      const cmd = shortcutMap.get(getKeyFullValue(e));
-      if (!cmd) {
+      if (e.defaultPrevented) {
         return;
       }
 
-      const result = commandStore.execCommand(cmd);
-      if (result) {
+      const name = getKeyFullName(e);
+
+      const cmd = customShortcutMap.get(name);
+      if (cmd) {
+        commandStore.execCommand(cmd);
         e.preventDefault();
+        return;
+      }
+
+      const handlers = localShortcutMap.get(name);
+      if (handlers && handlers.length > 0) {
+        for (const handler of handlers) {
+          handler();
+        }
+        e.preventDefault();
+        return;
       }
     }
 
@@ -539,9 +553,23 @@
      * @param {readonly ShortcutAction[]} value
      */
     function setCustomShortcuts(value) {
-      shortcutMap.clear();
+      customShortcutMap.clear();
       for (const { name, cmd } of value) {
-        shortcutMap.set(name, cmd);
+        customShortcutMap.set(name, cmd);
+      }
+    }
+
+    /**
+     * @param {Record<string, Array<() => void>>} value
+     */
+    function addLocalShortcuts(value) {
+      for (const [name, newHandlers] of Object.entries(value)) {
+        let handlers = localShortcutMap.get(name);
+        if (!handlers) {
+          handlers = [];
+          localShortcutMap.set(name, handlers);
+        }
+        handlers.push(...newHandlers);
       }
     }
 
@@ -549,6 +577,7 @@
 
     return {
       setCustomShortcuts,
+      addLocalShortcuts,
     };
   }
 
@@ -1280,7 +1309,7 @@
 
     const contentRatingStore = useContentRating(vjsPlayerElement);
     const nextEpisodeStore = useNextEpisode(vjsPlayerElement);
-    const customShortcutsStore = useCustomShortcuts(vjsPlayerElement);
+    const shortcutsStore = useShortcuts(vjsPlayerElement);
     const timelineActionsStore = useTimelineActions(vjsPlayerElement);
     const settingUiStore = useSettingUi(vjsPlayerElement, (settings) => {
       saveSettings(settings);
@@ -1301,7 +1330,7 @@
         nextEpisodeStore.setAutoPlayNextEpisodeDelay(settings.autoPlayNextEpisodeDelay);
       }
       if (settings.shortcutActions !== undefined) {
-        customShortcutsStore.setCustomShortcuts(settings.shortcutActions);
+        shortcutsStore.setCustomShortcuts(settings.shortcutActions);
       }
       if (settings.timelineActions !== undefined) {
         timelineActionsStore.setTimelineActions(settings.timelineActions);
