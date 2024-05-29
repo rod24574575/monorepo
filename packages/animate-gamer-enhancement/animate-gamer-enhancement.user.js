@@ -42,6 +42,7 @@
     auto_play_next_episode_tip: '此功能和動畫瘋內建提供的自動播放功能衝突，如果沒有自訂延遲時間的需求，可以直接使用內建的自動播放功能即可',
     auto_play_next_episode_delay: '自動播放延遲時間',
     auto_play_countdown: '倒數{0}秒繼續播放',
+    interrupt_play: '中斷播放',
     second: '秒',
     timeline_automation_rule: '時間軸自動化規則',
     add: '新增',
@@ -283,9 +284,13 @@
    * @param {VjsPlayerElement} vjsPlayer
    */
   function useNextEpisode(vjsPlayer) {
+    /**
+     * @typedef {'due' | 'clear' | 'cancel'} StopCountdownReason
+     */
+
     let enabled = false;
     let delayTime = 0;
-    /** @type {{ countdownTimer: number, finishTimer: number } | null} */
+    /** @type {{ countdownTimer: number, finishTimer: number, resolve: (reason: StopCountdownReason) => void } | null} */
     let countdownData = null;
 
     const videoEl = /** @type {HTMLVideoElement | null} */ (vjsPlayer.querySelector('video'));
@@ -336,12 +341,17 @@
       }
       if (stopAutoPlayEl) {
         if (display) {
-          stopAutoPlayEl.classList.remove('vjs-hidden');
+          stopAutoPlayEl.classList.remove('vjs-hidden', 'is-disabled');
+
+          const stopAutoPlayTextEl = stopAutoPlayEl.querySelector('p');
+          if (stopAutoPlayTextEl) {
+            stopAutoPlayTextEl.textContent = getI18n('interrupt_play');
+          }
         } else {
           stopAutoPlayEl.classList.add('vjs-hidden');
         }
       }
-      updateCountdownUi(delayTime);
+      updateCountdownUi(display ? delayTime : 0);
     }
 
     /**
@@ -349,15 +359,17 @@
      */
     function updateCountdownUi(countdownValue) {
       if (titleEl) {
-        titleEl.textContent = formatString(getI18n('auto_play_countdown'), countdownValue);
+        titleEl.textContent = countdownValue ? formatString(getI18n('auto_play_countdown'), countdownValue) : '';
       }
     }
 
     /**
-     * @returns {Promise<void>}
+     * @returns {Promise<StopCountdownReason>}
      */
     async function countdown() {
       clearCountdown();
+
+      setCountdownUiDisplay(true);
 
       let countdownValue = delayTime;
       const countdownTimer = window.setInterval(() => {
@@ -365,26 +377,46 @@
         updateCountdownUi(countdownValue);
       }, 1000);
 
+      /** @type {ReturnType<typeof Promise.withResolvers<StopCountdownReason>>} */
       const { promise, resolve } = Promise.withResolvers();
-      const finishTimer = window.setTimeout(resolve, delayTime * 1000);
+      const finishTimer = window.setTimeout(() => stopCountdown('due'), delayTime * 1000);
+
       countdownData = {
         countdownTimer,
         finishTimer,
+        resolve,
       };
 
-      await promise;
+      const reason = await promise;
+      if (reason !== 'clear') {
+        setCountdownUiDisplay(false);
+      }
+
+      return reason;
     }
 
     /**
-     * @returns {Promise<void>}
+     * @param {StopCountdownReason} reason
      */
-    async function clearCountdown() {
+    function stopCountdown(reason) {
       if (!countdownData) {
         return;
       }
-      window.clearInterval(countdownData.countdownTimer);
-      window.clearTimeout(countdownData.finishTimer);
+
+      const { countdownTimer, finishTimer, resolve } = countdownData;
+      window.clearInterval(countdownTimer);
+      window.clearTimeout(finishTimer);
+      resolve(reason);
+
       countdownData = null;
+    }
+
+    function clearCountdown() {
+      return stopCountdown('clear');
+    }
+
+    function cancelCountdown() {
+      return stopCountdown('cancel');
     }
 
     /**
@@ -396,12 +428,10 @@
       }
 
       if (delayTime) {
-        setCountdownUiDisplay(true);
-        await countdown();
-        setCountdownUiDisplay(false);
+        const reason = await countdown();
 
         // Check again whether the stop element is still shown after the countdown.
-        if (!isStopElShown()) {
+        if (reason !== 'due' || !isStopElShown()) {
           return;
         }
       }
@@ -436,6 +466,8 @@
         });
 
         maybePlayNextEpisode();
+      } else {
+        cancelCountdown();
       }
 
       if (videoEl) {
@@ -443,6 +475,14 @@
           videoEl.addEventListener('emptied', clearCountdown);
         } else {
           videoEl.removeEventListener('emptied', clearCountdown);
+        }
+      }
+
+      if (stopAutoPlayEl) {
+        if (enabled) {
+          stopAutoPlayEl.addEventListener('click', cancelCountdown);
+        } else {
+          stopAutoPlayEl.removeEventListener('emptied', cancelCountdown);
         }
       }
     }
