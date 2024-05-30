@@ -1200,7 +1200,7 @@
         dummyEl.innerHTML = `
           <div class="ani-setting-item ani-flex">
             <div class="ani-setting-value ani-set-flex-right">
-              <input type="number" class="ani-input">
+              <input type="number" class="ani-input" style="margin:0">
             </div>
           </div>
         `;
