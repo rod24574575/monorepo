@@ -45,6 +45,7 @@
     interrupt_play: '中斷播放',
     second: '秒',
     timeline_automation_rule: '時間軸自動化規則',
+    timeline_automation_rule_tip: '影片播放至規則所設定的時間時，會觸發該規則的指定操作。\n快捷鍵：\n[\\]帶入目前影片時間',
     add: '新增',
     advance_5s: '快轉5秒',
     advance_60s: '快轉60秒',
@@ -815,7 +816,7 @@
         return hour * 3600 + minute * 60 + second;
       }
 
-      tabContentComponent = createSettingTabElement({
+      tabContentComponent = createSettingTabComp({
         id: tabContentId,
         sections: [
           {
@@ -875,6 +876,7 @@
           {
             title: getI18n('timeline_automation_rule'),
             id: 'enh-ani-timeline-automation-rule',
+            tip: getI18n('timeline_automation_rule_tip'),
             items: [
               {
                 type: 'html',
@@ -1103,6 +1105,7 @@
      * @typedef SettingSectionConfig
      * @property {string} title
      * @property {string} [id]
+     * @property {string} [tip]
      * @property {SettingItemConfig[]} items
      */
 
@@ -1113,10 +1116,27 @@
      */
 
     /**
+     * @param {string} tip
+     * @returns {Element}
+     */
+    function createSettingTipEl(tip) {
+      const dummyEl = document.createElement('div');
+      dummyEl.innerHTML = `
+        <div class="qa-icon" style="display:inline-block;top:1px;">
+          <img src="https://i2.bahamut.com.tw/anime/smallQAicon.svg">
+        </div>
+      `;
+
+      const tipEl = /** @type {Element} */ (dummyEl.firstElementChild);
+      tipEl.setAttribute('tip-content', tip);
+      return tipEl;
+    }
+
+    /**
      * @param {SettingItemConfig} config
      * @returns {DocumentFragment}
      */
-    function createSettingItemLabel(config) {
+    function createSettingItemLabelEl(config) {
       const fragment = document.createDocumentFragment();
       if (('label' in config) && config.label) {
         const dummyEl = document.createElement('div');
@@ -1134,18 +1154,7 @@
         fragment.append(...dummyEl.childNodes);
 
         if (config.labelTip) {
-          dummyEl.innerHTML = `
-            <div class="qa-icon" style="display:inline-block;top:1px;">
-              <img src="https://i2.bahamut.com.tw/anime/smallQAicon.svg">
-            </div>
-          `;
-
-          const tipEl = dummyEl.firstElementChild;
-          if (tipEl) {
-            tipEl.setAttribute('tip-content', config.labelTip);
-          }
-
-          fragment.append(...dummyEl.childNodes);
+          fragment.append(createSettingTipEl(config.labelTip));
         }
       }
       return fragment;
@@ -1155,7 +1164,7 @@
      * @param {SettingItemConfig} config
      * @returns {SettingComponent}
      */
-    function createSettingItemElement(config) {
+    function createSettingItemComp(config) {
       if (config.type === 'checkbox') {
         const dummyEl = document.createElement('div');
         dummyEl.innerHTML = `
@@ -1172,7 +1181,7 @@
         `;
 
         const itemEl = /** @type {HTMLDivElement} */ (dummyEl.firstElementChild);
-        itemEl.prepend(createSettingItemLabel(config));
+        itemEl.prepend(createSettingItemLabelEl(config));
 
         const inputEl = itemEl.querySelector('input');
         if (inputEl) {
@@ -1197,7 +1206,7 @@
         `;
 
         const itemEl = /** @type {HTMLDivElement} */ (dummyEl.firstElementChild);
-        itemEl.prepend(createSettingItemLabel(config));
+        itemEl.prepend(createSettingItemLabelEl(config));
 
         const inputEl = dummyEl.querySelector('input');
         if (inputEl) {
@@ -1237,8 +1246,8 @@
      * @param {SettingSectionConfig} config
      * @returns {SettingComponent}
      */
-    function createSettingSectionElement(config) {
-      const { title, id, items } = config;
+    function createSettingSectionComp(config) {
+      const { title, id, tip, items } = config;
 
       const sectionEl = document.createElement('div');
       sectionEl.classList.add('ani-setting-section');
@@ -1250,10 +1259,15 @@
       if (id) {
         sectionEl.id = id;
       }
+      if (tip) {
+        const tipEl = createSettingTipEl(tip);
+        tipEl.style.marginLeft = '8px';
+        titleEl.appendChild(tipEl);
+      }
 
       sectionEl.appendChild(titleEl);
 
-      const itemComponents = items.map((item) => createSettingItemElement(item));
+      const itemComponents = items.map((item) => createSettingItemComp(item));
       for (const { el } of itemComponents) {
         sectionEl.append(el);
       }
@@ -1268,14 +1282,14 @@
      * @param {SettingTabConfig} config
      * @returns {SettingComponent}
      */
-    function createSettingTabElement(config) {
+    function createSettingTabComp(config) {
       const tabEl = document.createElement('div');
       if (config.id) {
         tabEl.id = config.id;
       }
       tabEl.classList.add('ani-tab-content__item');
 
-      const sectionComponents = config.sections.map((section) => createSettingSectionElement(section));
+      const sectionComponents = config.sections.map((section) => createSettingSectionComp(section));
       for (const { el } of sectionComponents) {
         tabEl.append(el);
       }
