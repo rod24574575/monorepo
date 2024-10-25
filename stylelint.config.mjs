@@ -8,4 +8,7 @@ export default defineConfig({
   reportDescriptionlessDisables: true,
   reportInvalidScopeDisables: true,
   reportNeedlessDisables: true,
+  rules: {
+    'at-rule-no-vendor-prefix': null,
+  },
 });

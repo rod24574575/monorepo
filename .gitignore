@@ -3,9 +3,12 @@
 Thumbs.db
 *.swp
 
-# JavaScript
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# JavaScript
 node_modules/
+.eslintcache
+.stylelintcache

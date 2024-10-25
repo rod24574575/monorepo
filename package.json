@@ -11,27 +11,27 @@
     "url": "https://github.com/rod24574575/monorepo.git"
   },
   "scripts": {
-    "lint:js": "eslint './**/*.{ts,mts,cts,js,mjs,cjs}'",
-    "lint:css": "stylelint './**/*.styl'",
+    "lint:js": "eslint --cache --max-warnings 0",
+    "lint:css": "stylelint --cache './**/*.styl'",
     "lint:md": "markdownlint './**/*.md'",
     "lint": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:md",
     "check:ts": "tsc"
   },
-  "packageManager": "pnpm@8.15.6",
+  "packageManager": "pnpm@9.12.2",
   "devDependencies": {
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.8.0",
     "@types/tampermonkey": "^5.0.3",
-    "eslint": "^9.3.0",
+    "eslint": "^9.13.0",
     "eslint-define-config": "^2.1.0",
-    "eslint-plugin-userscripts": "^0.5.2",
-    "globals": "^15.3.0",
-    "markdownlint-cli": "^0.40.0",
-    "stylelint": "^16.6.0",
+    "eslint-plugin-userscripts": "^0.5.6",
+    "globals": "^15.11.0",
+    "markdownlint-cli": "^0.42.0",
+    "stylelint": "^16.10.0",
     "stylelint-config-standard-scss": "^13.1.0",
-    "stylelint-define-config": "^1.5.0",
-    "stylelint-scss": "^6.3.0",
+    "stylelint-define-config": "^1.6.0",
+    "stylelint-scss": "^6.8.1",
     "stylelint-stylus": "^1.0.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.6.3"
   },
   "private": true
 }
