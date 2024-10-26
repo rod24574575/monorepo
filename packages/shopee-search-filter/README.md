@@ -4,7 +4,7 @@ Apply filters for [Shopee](https://shopee.com/) search.
 
 ## Features
 
-- Hide products that does not match any search keywords
+- Hide products that do not match any search keywords
 
 ## Install
 
