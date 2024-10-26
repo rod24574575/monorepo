@@ -6,7 +6,7 @@
 // @description        過濾蝦皮搜尋結果
 // @description:en     Apply filters for Shopee search.
 // @description:zh-TW  過濾蝦皮搜尋結果
-// @version            1.0.0
+// @version            1.0.1
 // @license            MIT
 // @author             rod24574575
 // @homepage           https://github.com/rod24574575/monorepo
