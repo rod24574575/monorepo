@@ -72,7 +72,7 @@
       }
 
       const { matched_keywords } = JSON.parse(searchItemTrackingStr);
-      return (!matched_keywords || matched_keywords.length === 0 || (matched_keywords.length === 1 && matched_keywords[0] === ''));
+      return !matched_keywords || !Array.isArray(matched_keywords) || matched_keywords.every((keyword) => !keyword);
     } catch (e) {
       console.warn('Failed to find `matched_keywords`', itemEl, e);
       return false;
