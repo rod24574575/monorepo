@@ -1,6 +1,6 @@
 {
   "name": "shopee-search-filter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Apply filters for Shopee search.",
   "keywords": [
     "userscript"
