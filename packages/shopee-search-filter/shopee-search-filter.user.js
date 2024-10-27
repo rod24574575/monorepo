@@ -14,14 +14,14 @@
 // @supportURL         https://github.com/rod24574575/monorepo/issues
 // @updateURL          https://github.com/rod24574575/monorepo/raw/main/packages/shopee-search-filter/shopee-search-filter.user.js
 // @downloadURL        https://github.com/rod24574575/monorepo/raw/main/packages/shopee-search-filter/shopee-search-filter.user.js
-// @match              https://shopee.tw/search?*
-// @match              https://shopee.vn/search?*
-// @match              https://shopee.co.id/search?*
-// @match              https://shopee.com.my/search?*
-// @match              https://shopee.co.th/search?*
-// @match              https://shopee.ph/search?*
-// @match              https://shopee.sg/search?*
-// @match              https://shopee.com.br/search?*
+// @match              https://shopee.tw/*
+// @match              https://shopee.vn/*
+// @match              https://shopee.co.id/*
+// @match              https://shopee.com.my/*
+// @match              https://shopee.co.th/*
+// @match              https://shopee.ph/*
+// @match              https://shopee.sg/*
+// @match              https://shopee.com.br/*
 // @run-at             document-idle
 // ==/UserScript==
 
@@ -88,6 +88,10 @@
   }
 
   function run() {
+    if (!location.pathname.startsWith('/search')) {
+      return;
+    }
+
     for (const itemEl of document.querySelectorAll('li.shopee-search-item-result__item')) {
       if (cacheSet.has(itemEl)) {
         continue;
