@@ -30,10 +30,10 @@
    */
 
   /**
-   * @param {string} search
    * @returns {string | null}
    */
-  function parseLocaleFromSearch(search) {
+  function detectLocaleFromLocation() {
+    const search = location.search;
     try {
       return (new URLSearchParams(search)).get('locale');
     } catch {
@@ -45,34 +45,20 @@
   /**
    * @returns {string | null}
    */
-  function detectLocaleFromLocation() {
-    return parseLocaleFromSearch(location.search);
-  }
-
-  /**
-   * @returns {string | null}
-   */
   function detectLocaleFromLanguage() {
-    const languageItemAnchor = document.querySelector('.header_dropdown_list_item.is-selected > a[href]');
-    if (!languageItemAnchor) {
+    const langCurrencySelect = /** @type {HTMLSelectElement | null} */ (document.querySelector('.header_dropdown_nav_group select.lang_currency_select'));
+    if (!langCurrencySelect) {
+      console.warn('Failed to find language select element');
       return null;
     }
 
-    const href = languageItemAnchor.getAttribute('href');
-    if (!href) {
+    const match = langCurrencySelect.value.match(/([a-zA-Z]{2})-([a-zA-Z]{2})/);
+    if (!match || match.length < 3) {
+      console.warn('Failed to parse locale from language select', langCurrencySelect.value);
       return null;
     }
 
-    /** @type {string} */
-    let search;
-    try {
-      search = (new URL(href)).search;
-    } catch {
-      console.warn('Failed to parse search from url:', href);
-      return null;
-    }
-
-    return parseLocaleFromSearch(search);
+    return `${match[1]}_${match[2].toUpperCase()}`;
   }
 
   /**
