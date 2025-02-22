@@ -268,8 +268,8 @@
               after = after.replace('searchKeyword=', 'keyword=');
               break;
             case 'category':
-              replacement += 'category/LgrpCategory.jsp';
-              after = after.replace('cn=', 'l_code=');
+              replacement += 'category/DgrpCategory.jsp';
+              after = after.replace('cn=', 'd_code=');
               break;
             default:
               break;
@@ -293,7 +293,7 @@
   const cacheSet = new WeakSet();
 
   function run() {
-    for (const anchorElement of /** @type {NodeListOf<HTMLAnchorElement>} */ (document.querySelectorAll('a[href][data-ved]:has(> br):has(> h3):has(> div.notranslate)'))) {
+    for (const anchorElement of /** @type {NodeListOf<HTMLAnchorElement>} */ (document.querySelectorAll('a[href][data-ved]:has(> h3):has(> div.notranslate)'))) {
       if (cacheSet.has(anchorElement)) {
         continue;
       }
